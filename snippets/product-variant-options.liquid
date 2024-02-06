@@ -25,6 +25,10 @@
   assign product_form_id = 'product-form-' | append: section.id
 -%}
 
+{% if picker_type == 'dropdown' %}
+  <option value="" selected="selected">Unselected</option>
+{% endif %}
+
 {%- for value in option.values -%}
   {%- liquid
     assign option_disabled = true
@@ -66,6 +70,8 @@
     </span>
   {%- endcapture %}
 
+
+
   {%- if picker_type == 'swatch' -%}
     {% assign checked = false %}
     {% if option.selected_value == value %}
@@ -89,6 +95,7 @@
       name="{{ option.name }}"
       value="{{ value | escape }}"
       form="{{ product_form_id }}"
+      {% if option.name == 'Color' %}data-color-option="{{ value | downcase }}"{% endif %}
       {% if option.selected_value == value %}
         checked
       {% endif %}
@@ -103,9 +110,7 @@
   {%- elsif picker_type == 'dropdown' or picker_type == 'swatch_dropdown' -%}
     <option
       value="{{ value | escape }}"
-      {% if option.selected_value == value %}
-        selected="selected"
-      {% endif %}
+
       {% if swatch_value and picker_type == 'swatch_dropdown' %}
         data-option-swatch-value="{{ swatch_value }}"
       {% endif %}
