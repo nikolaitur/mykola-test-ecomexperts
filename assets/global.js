@@ -918,12 +918,12 @@ class VariantSelects extends HTMLElement {
     this.updatePickupAvailability();
     this.removeErrorMessage();
     this.updateVariantStatuses();
+    this.updateMedia();
 
     if (!this.currentVariant) {
       this.toggleAddButton(true, "", true);
       this.setUnavailable();
     } else {
-      this.updateMedia();
       this.updateURL();
       this.updateVariantInput();
       this.renderProductInfo();
@@ -973,17 +973,21 @@ class VariantSelects extends HTMLElement {
   }
 
   updateMedia() {
-    if (!this.currentVariant) return;
-    if (!this.currentVariant.featured_media) return;
+    // if (!this.currentVariant) return;
+    // if (!this.currentVariant.featured_media) return;
 
     const selectedColorOption = document.querySelector("[data-color-option]:checked");
     const selectedColorValue = selectedColorOption?.dataset.colorOption;
+    let featuredMediaId;
 
     if (selectedColorValue) {
       const mediaItems = document.querySelectorAll(".product__media-item");
       for (const mediaItem of mediaItems) {
         const mediaItemAlt = mediaItem.dataset.mediaAlt;
         if (mediaItemAlt === selectedColorValue) {
+          if (mediaItem.classList.contains("product__media-item--variant")) {
+            featuredMediaId = mediaItem.dataset.mediaId;
+          }
           mediaItem.classList.remove("hidden");
         } else {
           mediaItem.classList.add("hidden");
@@ -992,7 +996,7 @@ class VariantSelects extends HTMLElement {
     }
 
     const mediaGalleries = document.querySelectorAll(`[id^="MediaGallery-${this.dataset.section}"]`);
-    mediaGalleries.forEach((mediaGallery) => mediaGallery.setActiveMedia(`${this.dataset.section}-${this.currentVariant.featured_media.id}`, true));
+    mediaGalleries.forEach((mediaGallery) => mediaGallery.setActiveMedia(featuredMediaId, true));
 
     const modalContent = document.querySelector(`#ProductModal-${this.dataset.section} .product-media-modal__content`);
     if (!modalContent) return;
