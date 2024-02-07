@@ -918,7 +918,7 @@ class VariantSelects extends HTMLElement {
     this.updatePickupAvailability();
     this.removeErrorMessage();
     this.updateVariantStatuses();
-    this.updateMedia();
+    this.updateMediaAndPrice();
 
     if (!this.currentVariant) {
       this.toggleAddButton(true, "", true);
@@ -972,7 +972,7 @@ class VariantSelects extends HTMLElement {
     }
   }
 
-  updateMedia() {
+  updateMediaAndPrice() {
     // if (!this.currentVariant) return;
     // if (!this.currentVariant.featured_media) return;
 
@@ -981,6 +981,15 @@ class VariantSelects extends HTMLElement {
     let featuredMediaId;
 
     if (selectedColorValue) {
+      const priceContainer = document.querySelector(".product__price");
+      if (priceContainer) {
+        priceContainer.classList.remove("hidden");
+      }
+      const priceElement = document.querySelector("product-info .price-item--regular");
+      if (priceElement) {
+        priceElement.innerHTML = selectedColorOption.dataset.variantPrice;
+      }
+
       const mediaItems = document.querySelectorAll(".product__media-item");
       for (const mediaItem of mediaItems) {
         const mediaItemAlt = mediaItem.dataset.mediaAlt;
@@ -1000,7 +1009,7 @@ class VariantSelects extends HTMLElement {
 
     const modalContent = document.querySelector(`#ProductModal-${this.dataset.section} .product-media-modal__content`);
     if (!modalContent) return;
-    const newMediaModal = modalContent.querySelector(`[data-media-id="${this.currentVariant.featured_media.id}"]`);
+    const newMediaModal = modalContent.querySelector(`[data-media-id="${featuredMediaId}"]`);
     modalContent.prepend(newMediaModal);
   }
 
@@ -1115,7 +1124,7 @@ class VariantSelects extends HTMLElement {
 
         if (pricePerItemSource && pricePerItemDestination) {
           pricePerItemDestination.innerHTML = pricePerItemSource.innerHTML;
-          pricePerItemDestination.classList.toggle("hidden", pricePerItemSource.classList.contains("hidden"));
+          // pricePerItemDestination.classList.toggle("hidden", pricePerItemSource.classList.contains("hidden"));
         }
 
         const price = document.getElementById(`price-${this.dataset.section}`);
@@ -1169,7 +1178,7 @@ class VariantSelects extends HTMLElement {
 
     if (!addButton) return;
     addButtonText.textContent = window.variantStrings.unavailable;
-    if (price) price.classList.add("hidden");
+    // if (price) price.classList.add("hidden");
     if (inventory) inventory.classList.add("hidden");
     if (sku) sku.classList.add("hidden");
     if (pricePerItem) pricePerItem.classList.add("hidden");

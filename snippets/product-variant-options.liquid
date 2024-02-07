@@ -89,13 +89,19 @@
       help_text: label_unavailable
     %}
   {%- elsif picker_type == 'button' -%}
+    {% assign variant_price = blank %}
+    {% for variant in product.variants %}
+      {% if variant.option1 == value %}
+        {% assign variant_price = variant.price %}
+      {% endif %}
+    {% endfor %}
     <input
       type="radio"
       id="{{ input_id }}"
       name="{{ option.name }}"
       value="{{ value | escape }}"
       form="{{ product_form_id }}"
-      {% if option.name == 'Color' %}data-color-option="{{ value | downcase }}"{% endif %}
+      {% if option.name == 'Color' %}data-color-option="{{ value | downcase }}" data-variant-price="{{ variant_price | money_with_currency }}"{% endif %}
       {% if option.selected_value == value %}
         checked
       {% endif %}
