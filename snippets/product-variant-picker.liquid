@@ -33,6 +33,9 @@
           endif
         endif
       -%}
+      {% if option.name == 'Size' %}
+        {% assign picker_type = 'dropdown' %}
+      {% endif %}
       {%- if picker_type == 'swatch' -%}
         <fieldset class="js product-form__input product-form__input--swatch">
           <legend class="form__label">

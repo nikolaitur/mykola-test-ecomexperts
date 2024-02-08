@@ -5,6 +5,9 @@
   {% render 'cart-drawer' %}
 {% endcomment %}
 
+{% assign master_product_variant_id = 47565954974004 %}
+{% assign gift_product_variant_id = 47561748906292 %}
+
 {{ 'quantity-popover.css' | asset_url | stylesheet_tag }}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 
@@ -70,6 +73,13 @@
           {% render 'icon-close' %}
         </button>
       </div>
+      {% assign gift_remove_required = true %}
+      {% for item in cart.items %}
+        {% if item.variant_id == master_product_variant_id %} {% comment %}{% endcomment %}
+          {% assign gift_remove_required = false %}
+        {% endif %}
+      {% endfor %}
+
       <cart-drawer-items
         {% if cart == empty %}
           class=" is-empty"
@@ -327,6 +337,9 @@
                                   class="button button--tertiary cart-remove-button"
                                   aria-label="{{ 'sections.cart.remove_title' | t: title: item.title }}"
                                   data-variant-id="{{ item.variant.id }}"
+                                  {% if gift_remove_required and item.variant.id == gift_product_variant_id %}
+                                    data-gift-remove
+                                  {% endif %}
                                 >
                                   {% render 'icon-remove' %}
                                 </button>
@@ -437,6 +450,7 @@
                     {%- endfor -%}
                   </tbody>
                 </table>
+
               </div>
             {%- endif -%}
             <p id="CartDrawer-LiveRegionText" class="visually-hidden" role="status"></p>
@@ -447,6 +461,66 @@
           <div id="CartDrawer-CartErrors" role="alert"></div>
         </form>
       </cart-drawer-items>
+      {% assign bundle_add_required = false %}
+      {% for item in cart.items %}
+        {% if item.variant_id == master_product_variant_id %}
+          {% assign bundle_add_required = true %}
+        {% endif %}
+      {% endfor %}
+      {% for item in cart.items %}
+        {% if item.variant_id == gift_product_variant_id %}
+          {% assign bundle_add_required = false %}
+        {% endif %}
+      {% endfor %}
+      {% if bundle_add_required %}
+        {% assign gift_product = all_products['dark-winter-jacket'] %}
+        <div class="hidden bundle-add">
+          <product-form data-section-id="{{ section.id }}">
+            {%- form 'product',
+              gift_product,
+              class: 'form',
+              novalidate: 'novalidate',
+              data-type: 'add-to-cart-form'
+            -%}
+              <input
+                type="hidden"
+                name="id"
+                value="{{gift_product_variant_id}}"
+                class="product-variant-id"
+              >
+              <button
+                id="{{ product_form_id }}-submit"
+                type="submit"
+                name="add"
+                class="quick-add__submit button button--full-width button--secondary{% if horizontal_quick_add %} card--horizontal__quick-add{% endif %}"
+                aria-haspopup="dialog"
+                aria-labelledby="{{ product_form_id }}-submit title-{{ section_id }}-{{ card_product.id }}"
+                aria-live="polite"
+                data-sold-out-message="true"
+                {% if card_product.selected_or_first_available_variant.available == false %}
+                  disabled
+                {% endif %}
+              >
+              <span>
+            {%- if card_product.selected_or_first_available_variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </span>
+          <span class="sold-out-message hidden">
+            {{ 'products.product.sold_out' | t }}
+          </span>
+          {%- if horizontal_quick_add -%}
+            <span class="icon-wrap">{% render 'icon-plus' %}</span>
+          {%- endif -%}
+          {%- render 'loading-spinner' -%}
+
+              </button>
+            {%- endform -%}
+          </product-form>
+        </div>
+      {% endif %}
       <div class="drawer__footer">
         {%- if settings.show_cart_note -%}
           <details id="Details-CartDrawer">

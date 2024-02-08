@@ -25,6 +25,10 @@
   assign product_form_id = 'product-form-' | append: section.id
 -%}
 
+{% if picker_type == 'dropdown' %}
+  <option value="" selected="selected">Unselected</option>
+{% endif %}
+
 {%- for value in option.values -%}
   {%- liquid
     assign option_disabled = true
@@ -66,6 +70,8 @@
     </span>
   {%- endcapture %}
 
+
+
   {%- if picker_type == 'swatch' -%}
     {% assign checked = false %}
     {% if option.selected_value == value %}
@@ -83,12 +89,19 @@
       help_text: label_unavailable
     %}
   {%- elsif picker_type == 'button' -%}
+    {% assign variant_price = blank %}
+    {% for variant in product.variants %}
+      {% if variant.option1 == value %}
+        {% assign variant_price = variant.price %}
+      {% endif %}
+    {% endfor %}
     <input
       type="radio"
       id="{{ input_id }}"
       name="{{ option.name }}"
       value="{{ value | escape }}"
       form="{{ product_form_id }}"
+      {% if option.name == 'Color' %}data-color-option="{{ value | downcase }}" data-variant-price="{{ variant_price | money_with_currency }}"{% endif %}
       {% if option.selected_value == value %}
         checked
       {% endif %}
@@ -103,9 +116,7 @@
   {%- elsif picker_type == 'dropdown' or picker_type == 'swatch_dropdown' -%}
     <option
       value="{{ value | escape }}"
-      {% if option.selected_value == value %}
-        selected="selected"
-      {% endif %}
+
       {% if swatch_value and picker_type == 'swatch_dropdown' %}
         data-option-swatch-value="{{ swatch_value }}"
       {% endif %}
